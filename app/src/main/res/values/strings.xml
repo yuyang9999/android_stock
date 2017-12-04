@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Stock</string>
+
+    <string name="server_address">http://10.0.2.2:8080/</string>
+
+    <string name="username">UserName</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+
+    <string name="register_username">User Name</string>
+    <string name="register_email">Email</string>
+    <string name="register_password">Password</string>
+    <string name="register_submit">Submit</string>
+
+    <string name="auth_client_id">fooClientIdPassword</string>
+    <string name="auth_client_secret">secret</string>
+
+    <string name="auth_resp">AuthResp</string>
+
+    <string name="auth_access_token">AccessToken</string>
+    <string name="auth_refresh_token">RefreshToken</string>
+    <string name="auth_expire_date">ExpireDate</string>
+</resources>
