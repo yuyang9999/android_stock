@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.function.Function;
 
 /**
  * Created by yangyu on 3/12/17.
@@ -151,7 +152,8 @@ public class AuthManager {
         return new Pair<>(username, password);
     }
 
-    public static String getAccessToken(Context context) {
+    public static String getAccessToken() {
+        Context context = MyApplication.getContext();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String respStr = preferences.getString(context.getString(R.string.auth_resp), "");
         if (TextUtils.isEmpty(respStr)) {
@@ -161,6 +163,39 @@ public class AuthManager {
         Gson gson = new Gson();
         AuthResp resp = gson.fromJson(respStr, AuthResp.class);
         return "Bearer " + resp.access_token;
+    }
+
+    public static void refreshAccessToken() {
+        Context context = MyApplication.getContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String user = preferences.getString(context.getString(R.string.username), "");
+        String password = preferences.getString(context.getString(R.string.password), "");
+        if (!TextUtils.isEmpty(user) && !TextUtils.isEmpty(password)) {
+            AuthManager manager = AuthManager.getDefaultManager();
+            manager.startAuth(user, password, new AuthConfig() {
+                @Override
+                public void finishHandler() {
+                }
+
+                @Override
+                public void startHandler() {
+
+                }
+            }, context);
+        }
+    }
+
+    public static void logout() {
+        Context context = MyApplication.getContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString(context.getString(R.string.auth_resp), "");
+        editor.apply();
+    }
+
+    public static boolean isAlreadyLoggedIn() {
+        return TextUtils.isEmpty(getAccessToken()) == false;
     }
 
 }

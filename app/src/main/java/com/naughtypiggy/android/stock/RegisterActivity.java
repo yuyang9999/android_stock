@@ -77,6 +77,8 @@ public class RegisterActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        setTitle("Register");
     }
 
     @Override
