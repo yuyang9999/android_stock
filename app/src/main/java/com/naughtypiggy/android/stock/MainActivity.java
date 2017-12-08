@@ -28,9 +28,15 @@ import retrofit2.Response;
 
 class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder> {
     private List<Profile> mProfiles;
+    private ListItemClickListener mClickListener;
 
-    public ProfileAdapter(List<Profile> profiles) {
+    public ProfileAdapter(List<Profile> profiles, ListItemClickListener listener) {
+        mClickListener = listener;
         mProfiles = profiles;
+    }
+
+    public interface ListItemClickListener {
+        void onListItemClick(int clikedItemIndex);
     }
 
     @Override
@@ -55,17 +61,24 @@ class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHold
         return mProfiles.size();
     }
 
-    public class ProfileViewHolder extends RecyclerView.ViewHolder {
+    public class ProfileViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView mProfileTextView;
 
         public ProfileViewHolder(View itemView) {
             super(itemView);
 
             mProfileTextView = (TextView) itemView.findViewById(R.id.tv_item_profile);
+            itemView.setOnClickListener(this);
         }
 
         void  bind(int listIndex) {
             mProfileTextView.setText(mProfiles.get(listIndex).getPname());
+        }
+
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            mClickListener.onListItemClick(clickedPosition);
         }
     }
 }
@@ -89,7 +102,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (!resp.hasError) {
                         mProfiles = resp.response;
 
-                        ProfileAdapter adapter = new ProfileAdapter(mProfiles);
+                        ProfileAdapter adapter = new ProfileAdapter(mProfiles, new ProfileAdapter.ListItemClickListener() {
+                            @Override
+                            public void onListItemClick(int clikedItemIndex) {
+                                Intent intent = new Intent(MainActivity.this, ProfileStockActivity.class);
+
+                                startActivity(intent);
+                            }
+                        });
                         mProfileListView.setAdapter(adapter);
                     }
                 }
