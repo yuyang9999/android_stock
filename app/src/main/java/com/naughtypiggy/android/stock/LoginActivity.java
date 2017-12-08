@@ -53,26 +53,26 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "password is empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                AuthManager manager = AuthManager.getDefaultManager();
-
-                boolean succeed = manager.startAuth(userName, password, new AuthManager.AuthConfig() {
-                    @Override
-                    public void finishHandler() {
-                        mProgressBar.setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void startHandler() {
-                        mProgressBar.setVisibility(View.VISIBLE);
-                    }
-                }, LoginActivity.this);
-
-                if (!succeed) {
-                    Toast.makeText(getApplicationContext(), "login failed", Toast.LENGTH_SHORT).show();
-                } else {
-                    onBackPressed();
-                }
+//
+//                AuthManager manager = AuthManager.getDefaultManager();
+//
+//                boolean succeed = manager.startAuth(userName, password, new AuthManager.AuthConfig() {
+//                    @Override
+//                    public void finishHandler() {
+//                        mProgressBar.setVisibility(View.INVISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void startHandler() {
+//                        mProgressBar.setVisibility(View.VISIBLE);
+//                    }
+//                }, LoginActivity.this);
+//
+//                if (!succeed) {
+//                    Toast.makeText(getApplicationContext(), "login failed", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    onBackPressed();
+//                }
             }
         });
     }

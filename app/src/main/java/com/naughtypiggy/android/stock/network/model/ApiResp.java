@@ -18,4 +18,12 @@ public class ApiResp {
         public String errorMsg;
         public List<Profile> response;
     }
+
+    public static class AuthResp {
+        public String access_token;
+        public String token_type;
+        public String refresh_token;
+        public int expires_in;
+        public String scope;
+    }
 }

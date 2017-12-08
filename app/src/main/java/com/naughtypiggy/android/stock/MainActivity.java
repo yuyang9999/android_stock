@@ -80,28 +80,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void refreshProfiles() {
-        if (AuthManager.isAlreadyLoggedIn()) {
-            Call<ApiResp.ApiProfileResp> req = NetworkUtil.service.getProfiles(AuthManager.getAccessToken());
-            req.enqueue(new Callback<ApiResp.ApiProfileResp>() {
-                @Override
-                public void onResponse(Call<ApiResp.ApiProfileResp> call, Response<ApiResp.ApiProfileResp> response) {
-                    if (response.isSuccessful()) {
-                        ApiResp.ApiProfileResp resp = response.body();
-                        if (!resp.hasError) {
-                            mProfiles = resp.response;
+        Call<ApiResp.ApiProfileResp> req = NetworkUtil.service.getProfiles(AuthManager.getAccessToken());
+        req.enqueue(new Callback<ApiResp.ApiProfileResp>() {
+            @Override
+            public void onResponse(Call<ApiResp.ApiProfileResp> call, Response<ApiResp.ApiProfileResp> response) {
+                if (response.isSuccessful()) {
+                    ApiResp.ApiProfileResp resp = response.body();
+                    if (!resp.hasError) {
+                        mProfiles = resp.response;
 
-                            ProfileAdapter adapter = new ProfileAdapter(mProfiles);
-                            mProfileListView.setAdapter(adapter);
-                        }
+                        ProfileAdapter adapter = new ProfileAdapter(mProfiles);
+                        mProfileListView.setAdapter(adapter);
                     }
                 }
+            }
 
-                @Override
-                public void onFailure(Call<ApiResp.ApiProfileResp> call, Throwable t) {
+            @Override
+            public void onFailure(Call<ApiResp.ApiProfileResp> call, Throwable t) {
 
-                }
-            });
-        }
+            }
+        });
     }
 
     @Override
@@ -117,15 +115,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mProfileListView.setLayoutManager(layoutManager);
         mProfileListView.setHasFixedSize(true);
-
-        AuthManager.logout();
-        refreshProfiles();
+        setTitle("Profiles");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         refreshProfiles();
+        invalidateOptionsMenu();
     }
 
     @Override
