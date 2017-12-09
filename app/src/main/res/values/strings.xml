@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Stock</string>
 
+    <string name="one_profile_key">OneProfileKey</string>
+    <string name="one_stock_profile_key">OneStockProfileKey</string>
     <string name="server_address">http://10.0.2.2:8080/</string>
 
     <string name="username">UserName</string>

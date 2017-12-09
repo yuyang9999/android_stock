@@ -18,6 +18,8 @@ import com.naughtypiggy.android.stock.network.AuthManager;
 import com.naughtypiggy.android.stock.network.NetworkUtil;
 import com.naughtypiggy.android.stock.network.model.ApiResp;
 import com.naughtypiggy.android.stock.network.model.Profile;
+import com.naughtypiggy.android.stock.network.model.ProfileStock;
+import com.naughtypiggy.android.stock.utility.Utility;
 
 import java.util.List;
 
@@ -105,8 +107,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ProfileAdapter adapter = new ProfileAdapter(mProfiles, new ProfileAdapter.ListItemClickListener() {
                             @Override
                             public void onListItemClick(int clikedItemIndex) {
-                                Intent intent = new Intent(MainActivity.this, ProfileStockActivity.class);
-
+                                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                                Profile profileStock = mProfiles.get(clikedItemIndex);
+                                String profileString = Utility.gsonObject(profileStock);
+                                intent.putExtra(getString(R.string.one_profile_key), profileString);
                                 startActivity(intent);
                             }
                         });
@@ -117,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onFailure(Call<ApiResp.ApiProfileResp> call, Throwable t) {
-
             }
         });
     }

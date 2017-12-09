@@ -22,7 +22,8 @@
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".ProfileStockActivity"></activity>
+        <activity android:name=".ProfileStockActivity" />
+        <activity android:name=".ProfileActivity"></activity>
     </application>
 
 </manifest>

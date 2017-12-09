@@ -26,4 +26,10 @@ public class ApiResp {
         public int expires_in;
         public String scope;
     }
+
+    public static class ApiProfileSymbolResp {
+        public boolean hasError;
+        public String errorMsg;
+        public List<ProfileStock> response;
+    }
 }

@@ -29,4 +29,8 @@ public interface NetworkService {
 
     @GET("/api/profiles")
     Call<ApiResp.ApiProfileResp> getProfiles(@Header("Authorization") String authorization);
+
+
+    @GET("/api/profile_symbols")
+    Call<ApiResp.ApiProfileSymbolResp> getProfileSymbols(@Header("Authorization") String authorization, @Query("pname") String profileName);
 }
