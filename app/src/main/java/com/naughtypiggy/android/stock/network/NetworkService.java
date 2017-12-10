@@ -22,7 +22,6 @@ public interface NetworkService {
     @POST("/oauth/token?grant_type=password")
     Call<ApiResp.AuthResp> login(@Header("Authorization") String auth, @Query("username") String userName, @Query("password") String password);
 
-
     @GET("/users/register")
     Call<ApiUserResp> registerUser(@Query("userName") String username, @Query("email") String email,
                                    @Query("password") String password);
@@ -30,6 +29,8 @@ public interface NetworkService {
     @GET("/api/profiles")
     Call<ApiResp.ApiProfileResp> getProfiles(@Header("Authorization") String authorization);
 
+    @GET("/api/profile_add")
+    Call<ApiUserResp> createNewProfile(@Header("Authorization") String authorization, @Query("pname") String pname);
 
     @GET("/api/profile_symbols")
     Call<ApiResp.ApiProfileSymbolResp> getProfileSymbols(@Header("Authorization") String authorization, @Query("pname") String profileName);

@@ -67,7 +67,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return 0;
+            return stocks.size();
         }
 
         public class StocksViewHolder extends RecyclerView.ViewHolder {
@@ -114,7 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResp.ApiProfileSymbolResp> call, Throwable t) {
-                Log.d(ProfileActivity.class.getName(), "onFailure: refresh profile stocks failed");
+                Log.e(ProfileActivity.class.getName(), t.getLocalizedMessage());
             }
         });
     }

@@ -3,9 +3,11 @@ package com.naughtypiggy.android.stock;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,12 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.naughtypiggy.android.stock.network.AuthManager;
 import com.naughtypiggy.android.stock.network.NetworkUtil;
 import com.naughtypiggy.android.stock.network.model.ApiResp;
+import com.naughtypiggy.android.stock.network.model.ApiUserResp;
 import com.naughtypiggy.android.stock.network.model.Profile;
-import com.naughtypiggy.android.stock.network.model.ProfileStock;
+import com.naughtypiggy.android.stock.uis.AddProfileDialog;
 import com.naughtypiggy.android.stock.utility.Utility;
 
 import java.util.List;
@@ -87,11 +91,16 @@ class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHold
 
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AddProfileDialog.AddProfileListener {
     Button mButton;
 
     private List<Profile> mProfiles;
     private RecyclerView mProfileListView;
+
+    private final int mLoginId = 1;
+    private final int mLogoutId = 2;
+
+    private final String TAG = "Main Activity";
 
 
     private void refreshProfiles() {
@@ -130,9 +139,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        mButton = (Button) findViewById(R.id.testButton);
-//        mButton.setOnClickListener(this);
-
         mProfileListView = (RecyclerView) findViewById(R.id.rv_profileList);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -150,10 +156,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+
         if (AuthManager.isAlreadyLoggedIn()) {
-            getMenuInflater().inflate(R.menu.main_activity_logout, menu);
+            menu.add(0, mLogoutId, 0, "Logout");
         } else {
-            getMenuInflater().inflate(R.menu.main_activity_login, menu);
+            menu.add(0, mLoginId, 0, "Login");
         }
 
         return true;
@@ -161,17 +169,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_login) {
+        if (item.getItemId() == mLoginId) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             return true;
         }
 
-        if (item.getItemId() == R.id.action_logout) {
+        if (item.getItemId() == mLogoutId) {
             AuthManager.logout();
             invalidateOptionsMenu();
             return true;
         }
+
+        if (item.getItemId() == R.id.menu_main_activity_add) {
+            Log.d(TAG, "onOptionsItemSelected: add");
+
+            FragmentManager manager = getFragmentManager();
+            AddProfileDialog dialog = new AddProfileDialog();
+            dialog.show(manager, "TEST");
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -182,5 +199,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            Intent intent = new Intent(this, RegisterActivity.class);
 //            startActivity(intent);
 //        }
+    }
+
+    @Override
+    public String onDialogPositiveSelected(String profileName) {
+        Log.d(TAG, "onDialogPositiveSelected: add profile with name " + profileName);
+
+        Call<ApiUserResp> call =  NetworkUtil.service.createNewProfile(AuthManager.getAccessToken(), profileName);
+        call.enqueue(new Callback<ApiUserResp>() {
+            @Override
+            public void onResponse(Call<ApiUserResp> call, Response<ApiUserResp> response) {
+                ApiUserResp resp = response.body();
+                if (!resp.hasError) {
+                    Toast.makeText(MainActivity.this, "succeed", Toast.LENGTH_SHORT).show();
+                    MainActivity.this.refreshProfiles();
+                } else {
+                    Toast.makeText(MainActivity.this, resp.errorMsg, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiUserResp> call, Throwable t) {
+                Toast.makeText(MainActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return null;
     }
 }

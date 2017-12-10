@@ -7,6 +7,12 @@ import java.util.List;
  */
 
 public class ApiResp {
+    public static class ApiGeneralResp {
+        public boolean hasError;
+        public String errorMsg;
+        public Object response;
+    }
+
     public static class ApiBooleanResp {
         public boolean hasError;
         public String errorMsg;
