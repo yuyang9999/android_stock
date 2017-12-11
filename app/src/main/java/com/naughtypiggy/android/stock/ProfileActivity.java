@@ -94,7 +94,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ApiResp.ApiProfileSymbolResp> call, Response<ApiResp.ApiProfileSymbolResp> response) {
                 ApiResp.ApiProfileSymbolResp resp = response.body();
-                if (!resp.hasError) {
+                if (resp != null && !resp.hasError) {
                     mStocks = response.body().response;
 
                     StocksAdapter adapter = new StocksAdapter(mStocks, new StocksAdapter.ClickListener() {

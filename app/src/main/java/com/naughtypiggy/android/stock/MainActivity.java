@@ -2,11 +2,18 @@ package com.naughtypiggy.android.stock;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,6 +72,34 @@ class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHold
     @Override
     public int getItemCount() {
         return mProfiles.size();
+    }
+
+    public void remove(final int position) {
+        Profile profile = mProfiles.get(position);
+
+        Call<ApiResp.ApiBooleanResp> call = NetworkUtil.service.deleteProfile(AuthManager.getAccessToken(), profile.getPname());
+        call.enqueue(new Callback<ApiResp.ApiBooleanResp>() {
+            @Override
+            public void onResponse(Call<ApiResp.ApiBooleanResp> call, Response<ApiResp.ApiBooleanResp> response) {
+                ApiResp.ApiBooleanResp resp = response.body();
+                if (resp != null && !resp.hasError) {
+                    mProfiles.remove(position);
+                    notifyItemRemoved(position);
+                } else if (resp != null) {
+                    Toast.makeText(MyApplication.getContext(), resp.errorMsg, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MyApplication.getContext(), "unknown error", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResp.ApiBooleanResp> call, Throwable t) {
+                Toast.makeText(MyApplication.getContext(), t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+//        mProfiles.remove(position);
+//        notifyItemRemoved(position);
     }
 
     public class ProfileViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -144,6 +179,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mProfileListView.setLayoutManager(layoutManager);
         mProfileListView.setHasFixedSize(true);
+
+        setupItemTouchHelper();
+
         setTitle("Profiles");
     }
 
@@ -200,6 +238,76 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            startActivity(intent);
 //        }
     }
+
+    private void setupItemTouchHelper() {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            Drawable background;
+            Drawable xMark;
+            int xMarkMargin;
+            boolean initiated;
+
+            private void init() {
+                background = new ColorDrawable(Color.RED);
+                xMark = ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_clear_24dp);
+                xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+                xMarkMargin = 16;
+                initiated = true;
+
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int swipedPosition = viewHolder.getAdapterPosition();
+                ProfileAdapter adapter = (ProfileAdapter) mProfileListView.getAdapter();
+                adapter.remove(swipedPosition);
+            }
+
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                View itemView = viewHolder.itemView;
+
+                if (viewHolder.getAdapterPosition() == -1) {
+                    //not interested in those
+                    return;
+                }
+
+                if (!initiated) {
+                    init();
+                }
+
+                //draw the background
+                background.setBounds(itemView.getRight() + (int)dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                background.draw(c);
+
+                //draw the x mark
+                int itemHeight = itemView.getBottom() - itemView.getTop();
+                int intrinsicWidth = xMark.getIntrinsicWidth();
+                int intrinsicHeight = xMark.getIntrinsicHeight();
+
+                int xMarkLeft = itemView.getRight() - xMarkMargin - intrinsicWidth;
+                int xMarkRight = itemView.getRight() - xMarkMargin;
+                int xMarkTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
+                int xmarkBottom = xMarkTop + intrinsicHeight;
+
+                xMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xmarkBottom);
+                xMark.draw(c);
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        };
+        ItemTouchHelper touchHelper = new ItemTouchHelper(simpleCallback);
+        touchHelper.attachToRecyclerView(mProfileListView);
+    }
+
 
     @Override
     public String onDialogPositiveSelected(String profileName) {
