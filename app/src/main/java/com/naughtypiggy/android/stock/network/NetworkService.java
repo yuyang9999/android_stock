@@ -35,7 +35,11 @@ public interface NetworkService {
     @POST("/api/profile_delete")
     Call<ApiResp.ApiBooleanResp> deleteProfile(@Header("Authorization") String authroization, @Query("pname") String pname);
 
-
     @GET("/api/profile_symbols")
     Call<ApiResp.ApiProfileSymbolResp> getProfileSymbols(@Header("Authorization") String authorization, @Query("pname") String profileName);
+
+    @GET("/api/profile_symbol_add")
+    Call<ApiResp.ApiBooleanResp> addProfileSymbol(@Header("Authorization") String authorization, @Query("pname") String profileName,
+                                                  @Query("sname") String stockName, @Query("share") int shares, @Query("price") float price,
+                                                  @Query("bought_date") String date);
 }

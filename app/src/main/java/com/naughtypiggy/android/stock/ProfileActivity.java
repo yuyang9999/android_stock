@@ -1,5 +1,6 @@
 package com.naughtypiggy.android.stock;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -10,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import com.naughtypiggy.android.stock.network.NetworkUtil;
 import com.naughtypiggy.android.stock.network.model.ApiResp;
 import com.naughtypiggy.android.stock.network.model.Profile;
 import com.naughtypiggy.android.stock.network.model.ProfileStock;
+import com.naughtypiggy.android.stock.uis.AddProfileStockDialog;
 import com.naughtypiggy.android.stock.utility.Utility;
 
 import java.util.List;
@@ -28,7 +31,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements AddProfileStockDialog.AddProfileStockListener {
+
+    static private final String TAG = "ProfileActivity";
+    static private final int ITEM_ID_ADD = 10;
+
     private Profile mProfile;
     private List<ProfileStock> mStocks;
 
@@ -144,6 +151,11 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, ITEM_ID_ADD, 0, "ADD");
+        return true;
+    }
 
     @Override
     protected void onResume() {
@@ -151,12 +163,47 @@ public class ProfileActivity extends AppCompatActivity {
         refreshProfileStocks();
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
+            return true;
+        }
+
+        if (item.getItemId() == ITEM_ID_ADD) {
+            FragmentManager manager = getFragmentManager();
+
+            AddProfileStockDialog dialog = new AddProfileStockDialog();
+            dialog.show(manager, "add_stock_dialog");
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public String onDialogPositiveSelected(String sname, int shares, float price, String boughtDate) {
+        Call<ApiResp.ApiBooleanResp> call = NetworkUtil.service.addProfileSymbol(AuthManager.getAccessToken(),
+                mProfile.getPname(), sname, shares, price, boughtDate);
+        call.enqueue(new Callback<ApiResp.ApiBooleanResp>() {
+            @Override
+            public void onResponse(Call<ApiResp.ApiBooleanResp> call, Response<ApiResp.ApiBooleanResp> response) {
+                ApiResp.ApiBooleanResp resp = response.body();
+                if (!resp.hasError) {
+                    refreshProfileStocks();
+                } else {
+                    Log.e(TAG, "onResponse: " + resp.errorMsg, null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResp.ApiBooleanResp> call, Throwable t) {
+                Log.e(TAG, "onFailure: ", t);
+            }
+        });
+
+
+        return null;
     }
 }
