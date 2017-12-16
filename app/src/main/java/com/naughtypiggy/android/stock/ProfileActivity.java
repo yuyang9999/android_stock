@@ -1,8 +1,10 @@
 package com.naughtypiggy.android.stock;
 
 import android.app.FragmentManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.naughtypiggy.android.stock.broadcast.NewSymbolAddReceiver;
 import com.naughtypiggy.android.stock.network.AuthManager;
 import com.naughtypiggy.android.stock.network.NetworkUtil;
 import com.naughtypiggy.android.stock.network.model.ApiResp;
@@ -39,7 +42,9 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
     private Profile mProfile;
     private List<ProfileStock> mStocks;
 
-    RecyclerView mStockListView;
+    private RecyclerView mStockListView;
+    NewSymbolAddReceiver mReceiver;
+
 
     private static class StocksAdapter extends RecyclerView.Adapter<StocksAdapter.StocksViewHolder> {
 
@@ -147,7 +152,24 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
         mStockListView.setLayoutManager(manager);
         mStockListView.setHasFixedSize(true);
 
+        mReceiver = new NewSymbolAddReceiver(new NewSymbolAddReceiver.ReceiveInterface() {
+            @Override
+            public void receiveIntent(Intent intent) {
+
+
+                System.out.println("receive intent" + intent);
+            }
+        });
+
+        registerReceiver(mReceiver, new IntentFilter(getString(R.string.broadcast_add_new_symbol)));
         setTitle("Stocks");
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 
 
@@ -172,10 +194,18 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
         }
 
         if (item.getItemId() == ITEM_ID_ADD) {
+            /*
             FragmentManager manager = getFragmentManager();
 
             AddProfileStockDialog dialog = new AddProfileStockDialog();
             dialog.show(manager, "add_stock_dialog");
+            */
+            Intent intent = new Intent(ProfileActivity.this, StockSearchActivity.class);
+            String profileStr = Utility.gsonObject(mProfile);
+            intent.putExtra("profile", profileStr);
+
+            startActivity(intent);
+
             return true;
         }
 

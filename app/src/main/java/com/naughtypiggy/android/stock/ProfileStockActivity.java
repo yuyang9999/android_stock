@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
 
 import com.naughtypiggy.android.stock.network.model.ProfileStock;
 import com.naughtypiggy.android.stock.utility.Utility;
@@ -11,6 +12,7 @@ import com.naughtypiggy.android.stock.utility.Utility;
 public class ProfileStockActivity extends AppCompatActivity {
 
     private ProfileStock mStock;
+    private static final int OPEN_SEARCH_ACTIVITY_ITEM = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,4 @@ public class ProfileStockActivity extends AppCompatActivity {
         String stockString = intent.getStringExtra(getString(R.string.one_stock_profile_key));
         mStock = (ProfileStock) Utility.ungsonObject(stockString, ProfileStock.class);
     }
-
-
 }

@@ -38,4 +38,8 @@ public class ApiResp {
         public String errorMsg;
         public List<ProfileStock> response;
     }
+
+    public static class ApiQueryStockResp {
+        public List<StockQueryInfo> resp;
+    }
 }

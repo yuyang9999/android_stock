@@ -2,6 +2,9 @@ package com.naughtypiggy.android.stock.network;
 
 import com.naughtypiggy.android.stock.network.model.ApiResp;
 import com.naughtypiggy.android.stock.network.model.ApiUserResp;
+import com.naughtypiggy.android.stock.network.model.StockQueryInfo;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -42,4 +45,9 @@ public interface NetworkService {
     Call<ApiResp.ApiBooleanResp> addProfileSymbol(@Header("Authorization") String authorization, @Query("pname") String profileName,
                                                   @Query("sname") String stockName, @Query("share") int shares, @Query("price") float price,
                                                   @Query("bought_date") String date);
+
+    @GET("/api/queryStocks")
+    Call<List<StockQueryInfo>> queryStockSymbol(@Header("Authorization") String authroization, @Query("symbol") String querySymbol);
+
+
 }

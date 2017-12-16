@@ -22,4 +22,7 @@
     <string name="auth_access_token">AccessToken</string>
     <string name="auth_refresh_token">RefreshToken</string>
     <string name="auth_expire_date">ExpireDate</string>
+
+
+    <string name="broadcast_add_new_symbol">android.intent.action.add_new_symbol</string>
 </resources>
