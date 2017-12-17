@@ -62,14 +62,17 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
             @Override
             public void onResponse(Call<ApiResp.ApiBooleanResp> call, Response<ApiResp.ApiBooleanResp> response) {
                 ApiResp.ApiBooleanResp resp = response.body();
-                if (resp.hasError) {
-                    String errorMsg = resp.errorMsg;
-                    Toast.makeText(ProfileActivity.this, errorMsg, Toast.LENGTH_SHORT);
-                } else {
-                    //delete the data
-                    mStocks.remove(position);
-                    StocksAdapter adapter = (StocksAdapter) mStockListView.getAdapter();
-                    adapter.notifyDataSetChanged();
+                if (resp != null) {
+                    if (resp.hasError) {
+                        String errorMsg = resp.errorMsg;
+                        Toast.makeText(ProfileActivity.this, errorMsg, Toast.LENGTH_SHORT);
+                    } else {
+                        //delete the data
+                        mStocks.remove(position);
+                        StocksAdapter adapter = (StocksAdapter) mStockListView.getAdapter();
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(ProfileActivity.this, "succeed", Toast.LENGTH_SHORT);
+                    }
                 }
             }
 

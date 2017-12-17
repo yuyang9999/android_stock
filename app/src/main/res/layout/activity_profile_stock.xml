@@ -6,4 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.naughtypiggy.android.stock.ProfileStockActivity">
 
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/stockchart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </com.github.mikephil.charting.charts.BarChart>
+
+
 </android.support.constraint.ConstraintLayout>

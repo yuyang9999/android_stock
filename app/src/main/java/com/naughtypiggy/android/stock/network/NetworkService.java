@@ -53,7 +53,7 @@ public interface NetworkService {
     @GET("/api/profile_only_add_symbol")
     Call<ApiResp.ApiBooleanResp> addStockSymbol(@Header("Authorization") String authorization, @Query("pname") String pname, @Query("sname")String symbolName);
 
-    @GET("/api/profile_symbol_delete")
+    @POST("/api/profile_symbol_delete")
     Call<ApiResp.ApiBooleanResp> deleteProfileStock(@Header("Authorization") String authorization, @Query("pname") String pname, @Query("profile_stock_id") int profile_stock_id);
 
 }
