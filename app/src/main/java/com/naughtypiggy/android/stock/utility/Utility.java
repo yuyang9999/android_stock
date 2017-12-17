@@ -1,5 +1,8 @@
 package com.naughtypiggy.android.stock.utility;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import com.google.gson.Gson;
 
 /**
@@ -17,5 +20,9 @@ public class Utility {
         Gson gson = new Gson();
         Object ret = gson.fromJson(objStr, cls);
         return ret;
+    }
+
+    public static void showToastText(Context context, String text) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 }

@@ -2,6 +2,7 @@ package com.naughtypiggy.android.stock.network;
 
 import com.naughtypiggy.android.stock.network.model.ApiResp;
 import com.naughtypiggy.android.stock.network.model.ApiUserResp;
+import com.naughtypiggy.android.stock.network.model.StockHistory;
 import com.naughtypiggy.android.stock.network.model.StockQueryInfo;
 
 import java.util.List;
@@ -55,5 +56,8 @@ public interface NetworkService {
 
     @POST("/api/profile_symbol_delete")
     Call<ApiResp.ApiBooleanResp> deleteProfileStock(@Header("Authorization") String authorization, @Query("pname") String pname, @Query("profile_stock_id") int profile_stock_id);
+
+    @GET("/api/stockHistory")
+    Call<ApiResp.ApiStockHistoryResp> getStockHistory(@Header("Authorization") String authorization, @Query("symbol") String symbal);
 
 }

@@ -42,4 +42,10 @@ public class ApiResp {
     public static class ApiQueryStockResp {
         public List<StockQueryInfo> resp;
     }
+
+    public static class ApiStockHistoryResp {
+        public boolean hasError;
+        public String errorMsg;
+        public List<StockHistory> response;
+    }
 }
