@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.naughtypiggy.android.stock.network.model.ProfileStock;
 import com.naughtypiggy.android.stock.utility.Utility;
@@ -27,5 +28,16 @@ public class ProfileStockActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String stockString = intent.getStringExtra(getString(R.string.one_stock_profile_key));
         mStock = (ProfileStock) Utility.ungsonObject(stockString, ProfileStock.class);
+        setTitle(mStock.getSname());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

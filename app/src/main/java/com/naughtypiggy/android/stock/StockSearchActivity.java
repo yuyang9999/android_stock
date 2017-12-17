@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.naughtypiggy.android.stock.network.AuthManager;
 import com.naughtypiggy.android.stock.network.NetworkUtil;
@@ -29,6 +30,7 @@ import com.naughtypiggy.android.stock.network.model.StockQueryInfo;
 import com.naughtypiggy.android.stock.network.model.StockSymbol;
 import com.naughtypiggy.android.stock.utility.Utility;
 
+import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -207,6 +209,24 @@ public class StockSearchActivity extends AppCompatActivity {
 //            Intent intent = new Intent(getString(R.string.broadcast_add_new_symbol));
 //            intent.putExtra("new_symbol", this.mSymbolInput.getText().toString());
 //            sendBroadcast(intent);
+            Call<ApiResp.ApiBooleanResp> call = NetworkUtil.service.addStockSymbol(AuthManager.getAccessToken(), mProfile.getPname(), this.mSymbolInput.getText().toString());
+
+            call.enqueue(new Callback<ApiResp.ApiBooleanResp>() {
+                @Override
+                public void onResponse(Call<ApiResp.ApiBooleanResp> call, Response<ApiResp.ApiBooleanResp> response) {
+                    ApiResp.ApiBooleanResp resp = response.body();
+                    if (!resp.hasError) {
+                        onBackPressed();
+                    } else {
+                        Toast.makeText(StockSearchActivity.this, resp.errorMsg, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResp.ApiBooleanResp> call, Throwable t) {
+                    Toast.makeText(StockSearchActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
 
 
             return true;

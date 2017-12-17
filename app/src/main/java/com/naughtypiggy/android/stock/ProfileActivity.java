@@ -6,11 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.naughtypiggy.android.stock.broadcast.NewSymbolAddReceiver;
 import com.naughtypiggy.android.stock.network.AuthManager;
@@ -25,6 +33,7 @@ import com.naughtypiggy.android.stock.network.NetworkUtil;
 import com.naughtypiggy.android.stock.network.model.ApiResp;
 import com.naughtypiggy.android.stock.network.model.Profile;
 import com.naughtypiggy.android.stock.network.model.ProfileStock;
+import com.naughtypiggy.android.stock.network.model.StockSymbol;
 import com.naughtypiggy.android.stock.uis.AddProfileStockDialog;
 import com.naughtypiggy.android.stock.utility.Utility;
 
@@ -45,6 +54,31 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
     private RecyclerView mStockListView;
     NewSymbolAddReceiver mReceiver;
 
+
+    private void deleteStock(final int position) {
+        ProfileStock stock = mStocks.get(position);
+        Call<ApiResp.ApiBooleanResp> call = NetworkUtil.service.deleteProfileStock(AuthManager.getAccessToken(), mProfile.getPname(), stock.getSid());
+        call.enqueue(new Callback<ApiResp.ApiBooleanResp>() {
+            @Override
+            public void onResponse(Call<ApiResp.ApiBooleanResp> call, Response<ApiResp.ApiBooleanResp> response) {
+                ApiResp.ApiBooleanResp resp = response.body();
+                if (resp.hasError) {
+                    String errorMsg = resp.errorMsg;
+                    Toast.makeText(ProfileActivity.this, errorMsg, Toast.LENGTH_SHORT);
+                } else {
+                    //delete the data
+                    mStocks.remove(position);
+                    StocksAdapter adapter = (StocksAdapter) mStockListView.getAdapter();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResp.ApiBooleanResp> call, Throwable t) {
+                Toast.makeText(ProfileActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT);
+            }
+        });
+    }
 
     private static class StocksAdapter extends RecyclerView.Adapter<StocksAdapter.StocksViewHolder> {
 
@@ -89,6 +123,14 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
                 super(itemView);
 
                 mTextView = (TextView) itemView.findViewById(R.id.tv_profile_stock);
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int pos = getAdapterPosition();
+                        listener.clicked(pos);
+                    }
+                });
             }
 
 
@@ -162,6 +204,8 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
         });
 
         registerReceiver(mReceiver, new IntentFilter(getString(R.string.broadcast_add_new_symbol)));
+        setupRecyclerViewGestures();
+
         setTitle("Stocks");
     }
 
@@ -236,4 +280,76 @@ public class ProfileActivity extends AppCompatActivity implements AddProfileStoc
 
         return null;
     }
+
+
+    private void setupRecyclerViewGestures() {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            Drawable background;
+            Drawable xMark;
+            int xMarkMargin;
+            boolean initiated;
+
+            private void init() {
+                background = new ColorDrawable(Color.RED);
+                xMark = ContextCompat.getDrawable(ProfileActivity.this, R.drawable.ic_clear_24dp);
+                xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+                xMarkMargin = 16;
+                initiated = true;
+
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int swipedPosition = viewHolder.getAdapterPosition();
+                deleteStock(swipedPosition);
+            }
+
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                View itemView = viewHolder.itemView;
+
+                if (viewHolder.getAdapterPosition() == -1) {
+                    //not interested in those
+                    return;
+                }
+
+                if (!initiated) {
+                    init();
+                }
+
+                //draw the background
+                background.setBounds(itemView.getRight() + (int)dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                background.draw(c);
+
+                //draw the x mark
+                int itemHeight = itemView.getBottom() - itemView.getTop();
+                int intrinsicWidth = xMark.getIntrinsicWidth();
+                int intrinsicHeight = xMark.getIntrinsicHeight();
+
+                int xMarkLeft = itemView.getRight() - xMarkMargin - intrinsicWidth;
+                int xMarkRight = itemView.getRight() - xMarkMargin;
+                int xMarkTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
+                int xmarkBottom = xMarkTop + intrinsicHeight;
+
+                xMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xmarkBottom);
+                xMark.draw(c);
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        };
+
+        ItemTouchHelper helper = new ItemTouchHelper(simpleCallback);
+        helper.attachToRecyclerView(mStockListView);
+    }
+
+
 }
