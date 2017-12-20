@@ -1,5 +1,6 @@
 package com.naughtypiggy.android.stock;
 
+import android.content.Intent;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,9 +14,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.naughtypiggy.android.stock.network.AuthManager;
+import com.naughtypiggy.android.stock.utility.Utility;
 
 public class LoginActivity extends AppCompatActivity {
     Button mLoginBtn;
+    Button mRegisterBtn;
     EditText mEtUserName;
     EditText mEtPassword;
     ProgressBar mProgressBar;
@@ -36,6 +39,14 @@ public class LoginActivity extends AppCompatActivity {
         mEtUserName = (EditText) findViewById(R.id.et_username);
         mEtPassword = (EditText) findViewById(R.id.et_password);
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
+        mRegisterBtn = (Button) findViewById(R.id.bt_register);
+        mRegisterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                LoginActivity.this.startActivity(intent);
+            }
+        });
 
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +64,18 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "password is empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                AuthManager.loginAsync(userName, password, new AuthManager.LoginCallback() {
+                    @Override
+                    public void loginSucceed() {
+                        onBackPressed();
+                    }
+
+                    @Override
+                    public void loginFailed(String msg) {
+                        Utility.showToastText(LoginActivity.this, msg);
+                    }
+                });
 //
 //                AuthManager manager = AuthManager.getDefaultManager();
 //

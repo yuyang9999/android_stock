@@ -55,23 +55,29 @@ public class NetworkUtil{
             Response originalResp = chain.proceed(request);
 
 //            String responseBody = originalResp.body().string();
-            if (originalResp.code() != 200) {
-                Pair<String, String> nameAndPassword = AuthManager.getUserNameAndPassword();
-                String userName = nameAndPassword.first;
-                String password = nameAndPassword.second;
-                if (!TextUtils.isEmpty(userName) && !TextUtils.isEmpty(password)) {
-                    String authCode = AuthManager.getAuthCode();
-                    Call<ApiResp.AuthResp> call = service_login.login(authCode, userName, password);
-                    ApiResp.AuthResp resp = call.execute().body();
-
-                    AuthManager.updateAuthResp(resp);
-
+            if (originalResp.code() == 401) {
+                if (AuthManager.loginSync()) {
                     Request newRequest = request.newBuilder().header("Authorization", AuthManager.getAccessToken()).build();
-
                     originalResp.body().close();
                     return chain.proceed(newRequest);
-
                 }
+
+//                Pair<String, String> nameAndPassword = AuthManager.getUserNameAndPassword();
+//                String userName = nameAndPassword.first;
+//                String password = nameAndPassword.second;
+//                if (!TextUtils.isEmpty(userName) && !TextUtils.isEmpty(password)) {
+//                    String authCode = AuthManager.getAuthCode();
+//                    Call<ApiResp.AuthResp> call = service_login.login(authCode, userName, password);
+//                    ApiResp.AuthResp resp = call.execute().body();
+//
+//                    AuthManager.updateAuthResp(resp);
+//
+//                    Request newRequest = request.newBuilder().header("Authorization", AuthManager.getAccessToken()).build();
+//
+//                    originalResp.body().close();
+//                    return chain.proceed(newRequest);
+//
+//                }
             }
 
             return originalResp;
