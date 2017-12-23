@@ -6,11 +6,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.baoyz.actionsheet.ActionSheet;
 import com.naughtypiggy.android.stock.network.AuthManager;
@@ -62,6 +66,24 @@ public class ProfileScreenSliderActivity extends AppCompatActivity {
         mPager = (ViewPager) findViewById(R.id.profile_pager);
         mPagerAdapter = new ProfileScreenSliderpagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            View leftMenu = getLayoutInflater().inflate(R.layout.profile_slider_action_bar, null);
+            Button btn = (Button) leftMenu.findViewById(R.id.btn_login);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ProfileScreenSliderActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
+            });
+            actionBar.setCustomView(leftMenu);
+            ;
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        }
     }
 
     @Override
