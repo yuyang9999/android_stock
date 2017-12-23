@@ -138,6 +138,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final String TAG = "Main Activity";
 
 
+    private void clearData() {
+        mProfiles.clear();
+        mProfileListView.getAdapter().notifyDataSetChanged();
+    }
+
     private void refreshProfiles() {
         Call<ApiResp.ApiProfileResp> req = NetworkUtil.service.getProfiles(AuthManager.getAccessToken());
         req.enqueue(new Callback<ApiResp.ApiProfileResp>() {
@@ -214,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if (item.getItemId() == mLogoutId) {
+            clearData();
             AuthManager.logout();
             invalidateOptionsMenu();
             return true;
