@@ -1,6 +1,7 @@
 package com.naughtypiggy.android.stock.uis;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -29,7 +30,6 @@ import retrofit2.Response;
 /**
  * Created by yangyu on 23/12/17.
  */
-
 public class ProfileFragment extends Fragment {
     public static final String ARG_PROFILE_NAME = "profile_name";
 
